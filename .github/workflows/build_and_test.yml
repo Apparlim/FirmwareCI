@@ -1,0 +1,48 @@
+name: Cross-Compile & QEMU Smoke Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc-aarch64-linux-gnu qemu-system-arm python3
+
+      - name: Run Host Unit Tests
+        run: |
+          mkdir build_host && cd build_host
+          cmake -DENABLE_HOST_TESTS=ON ..
+          make
+          ctest --output-on-failure
+
+      - name: Cross-Compile Bare-Metal Firmware
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/aarch64-none-elf.cmake ..
+          make
+
+      - name: Run QEMU Integration Smoke Test
+        run: |
+          chmod +x scripts/run_qemu.sh
+          ./scripts/run_qemu.sh build
+
+      - name: Stage Firmware Artifact
+        run: |
+          chmod +x scripts/flash_firmware.sh
+          ./scripts/flash_firmware.sh build/firmware.bin release
+
+      - name: Upload Binary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-4-firmware
+          path: release/kernel8.img
