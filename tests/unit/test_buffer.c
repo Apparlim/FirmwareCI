@@ -1,8 +1,8 @@
 #include "../../src/include/config.h"
 #include <assert.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct {
     uint8_t data[BUFFER_SIZE];
@@ -11,17 +11,21 @@ typedef struct {
 } test_ring_buf_t;
 
 static bool buf_push(test_ring_buf_t *buf, uint8_t val) {
-    if (buf == NULL) return false;
+    if (buf == NULL)
+        return false;
     uint32_t next = (buf->head + 1U) % BUFFER_SIZE;
-    if (next == buf->tail) return false;
+    if (next == buf->tail)
+        return false;
     buf->data[buf->head] = val;
     buf->head = next;
     return true;
 }
 
 static bool buf_pop(test_ring_buf_t *buf, uint8_t *val) {
-    if (buf == NULL || val == NULL) return false;
-    if (buf->head == buf->tail) return false;
+    if (buf == NULL || val == NULL)
+        return false;
+    if (buf->head == buf->tail)
+        return false;
     *val = buf->data[buf->tail];
     buf->tail = (buf->tail + 1U) % BUFFER_SIZE;
     return true;
