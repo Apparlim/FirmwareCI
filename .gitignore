@@ -1,0 +1,32 @@
+# Build directory
+build/
+build_host/
+bin/
+*.elf
+*.bin
+*.o
+*.a
+*.so
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+# Static analysis cache
+.cache/
+cppcheck_results.xml
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Staging/Release artifacts
+release/
