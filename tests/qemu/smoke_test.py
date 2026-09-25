@@ -43,9 +43,7 @@ def run_smoke_test():
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=0
+            stderr=subprocess.STDOUT
         )
     except FileNotFoundError:
         print("[SMOKE TEST] Error: qemu-system-aarch64 binary not found in PATH.", flush=True)
@@ -54,17 +52,18 @@ def run_smoke_test():
     start_time = time.time()
     timeout_sec = 10.0
     matched = False
-    accumulated_output = ""
+    accumulated = b""
 
     try:
         while time.time() - start_time < timeout_sec:
-            rlist, _, _ = select.select([proc.stdout], [], [], 0.2)
+            rlist, _, _ = select.select([proc.stdout], [], [], 0.1)
             if rlist:
-                chunk = proc.stdout.read(1024)
+                chunk = os.read(proc.stdout.fileno(), 1024)
                 if chunk:
-                    print(chunk, end="", flush=True)
-                    accumulated_output += chunk
-                    if "FIRMWARE BOOT OK" in accumulated_output:
+                    sys.stdout.write(chunk.decode("utf-8", errors="replace"))
+                    sys.stdout.flush()
+                    accumulated += chunk
+                    if b"FIRMWARE BOOT OK" in accumulated:
                         matched = True
                         break
             if proc.poll() is not None and not rlist:
