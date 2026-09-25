@@ -4,22 +4,39 @@ import sys
 import time
 import subprocess
 
+def get_supported_machine():
+    try:
+        res = subprocess.run(
+            ["qemu-system-aarch64", "-M", "help"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        if "raspi4b" in res.stdout:
+            return "raspi4b"
+        elif "raspi3b" in res.stdout:
+            return "raspi3b"
+        else:
+            return "virt"
+    except Exception:
+        return "raspi4b"
+
 def run_smoke_test():
     build_dir = os.environ.get("BUILD_DIR", "build")
     bin_path = os.path.join(build_dir, "firmware.bin")
     elf_path = os.path.join(build_dir, "firmware.elf")
 
     target_file = bin_path if os.path.exists(bin_path) else elf_path
+    machine_type = get_supported_machine()
 
     cmd = [
         "qemu-system-aarch64",
-        "-M", "raspi4b",
+        "-M", machine_type,
         "-kernel", target_file,
-        "-nographic",
-        "-serial", "stdio"
+        "-nographic"
     ]
 
-    print(f"[SMOKE TEST] Launching QEMU: {' '.join(cmd)}")
+    print(f"[SMOKE TEST] Launching QEMU ({machine_type}): {' '.join(cmd)}")
 
     try:
         proc = subprocess.Popen(
