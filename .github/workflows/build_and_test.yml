@@ -28,7 +28,7 @@ jobs:
       - name: Cross-Compile Bare-Metal Firmware
         run: |
           mkdir build && cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/aarch64-none-elf.cmake ..
+          cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/aarch64-none-elf.cmake -DTARGET_RASPI3=ON ..
           make
 
       - name: Run QEMU Integration Smoke Test

@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.16)
 project(FirmwareCI C ASM)
 
 option(ENABLE_HOST_TESTS "Build native host unit tests" OFF)
+option(TARGET_RASPI3 "Build for Raspberry Pi 3 target" OFF)
+option(TARGET_VIRT "Build for QEMU Virt target" OFF)
+
+if(TARGET_RASPI3)
+    add_compile_definitions(TARGET_RASPI3)
+endif()
+
+if(TARGET_VIRT)
+    add_compile_definitions(TARGET_VIRT)
+endif()
 
 if(ENABLE_HOST_TESTS)
     enable_testing()
