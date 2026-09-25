@@ -19,7 +19,7 @@ def get_supported_machine():
         else:
             return "virt"
     except Exception:
-        return "raspi4b"
+        return "raspi3b"
 
 def run_smoke_test():
     build_dir = os.environ.get("BUILD_DIR", "build")
@@ -36,7 +36,7 @@ def run_smoke_test():
         "-nographic"
     ]
 
-    print(f"[SMOKE TEST] Launching QEMU ({machine_type}): {' '.join(cmd)}")
+    print(f"[SMOKE TEST] Launching QEMU ({machine_type}): {' '.join(cmd)}", flush=True)
 
     try:
         proc = subprocess.Popen(
@@ -47,13 +47,12 @@ def run_smoke_test():
             bufsize=1
         )
     except FileNotFoundError:
-        print("[SMOKE TEST] Error: qemu-system-aarch64 binary not found in PATH.")
+        print("[SMOKE TEST] Error: qemu-system-aarch64 binary not found in PATH.", flush=True)
         sys.exit(1)
 
     start_time = time.time()
     timeout_sec = 10.0
     matched = False
-    output_lines = []
 
     try:
         while time.time() - start_time < timeout_sec:
@@ -61,15 +60,14 @@ def run_smoke_test():
                 break
             line = proc.stdout.readline()
             if line:
-                output_lines.append(line)
-                print(line, end="")
+                print(line, end="", flush=True)
                 if "FIRMWARE BOOT OK" in line:
                     matched = True
                     break
             else:
-                time.sleep(0.1)
+                time.sleep(0.05)
     finally:
-        print("[SMOKE TEST] Terminating QEMU process...")
+        print("\n[SMOKE TEST] Terminating QEMU process...", flush=True)
         proc.terminate()
         try:
             proc.wait(timeout=2)
@@ -77,10 +75,10 @@ def run_smoke_test():
             proc.kill()
 
     if matched:
-        print("[SMOKE TEST] SUCCESS: 'FIRMWARE BOOT OK' verified in serial output.")
+        print("[SMOKE TEST] SUCCESS: 'FIRMWARE BOOT OK' verified in serial output.", flush=True)
         sys.exit(0)
     else:
-        print("[SMOKE TEST] FAILURE: 'FIRMWARE BOOT OK' not received within 10 seconds.")
+        print("[SMOKE TEST] FAILURE: 'FIRMWARE BOOT OK' not received within 10 seconds.", flush=True)
         sys.exit(1)
 
 if __name__ == "__main__":
