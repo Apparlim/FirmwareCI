@@ -1,0 +1,28 @@
+name: Static Analysis & MISRA Checks
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-and-misra:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Analysis Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck clang-format
+
+      - name: Check Code Formatting
+        run: |
+          find src tests -name '*.c' -o -name '*.h' | xargs clang-format --dry-run --Werror
+
+      - name: Run MISRA & Cppcheck Analysis
+        run: |
+          chmod +x scripts/check_misra.sh
+          ./scripts/check_misra.sh
