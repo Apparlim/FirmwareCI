@@ -9,4 +9,9 @@ if [ ! -f "${BUILD_DIR}/firmware.bin" ] && [ ! -f "${BUILD_DIR}/firmware.elf" ];
 fi
 
 export BUILD_DIR="${BUILD_DIR}"
-python3 tests/qemu/smoke_test.py
+
+if command -v timeout &> /dev/null; then
+    timeout --preserve-status 15s python3 tests/qemu/smoke_test.py
+else
+    python3 tests/qemu/smoke_test.py
+fi
